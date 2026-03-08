@@ -5,7 +5,7 @@
 	"tsx": true,
 	"aliases": {
 		"components": "@/shared/ui",
-		"utils": "@/shared/lib/utils",
+		"utils": "@/shared/utils/cn",
 		"hooks": "@/shared/hooks",
 		"ui": "@/shared/ui",
 		"lib": "@/shared/lib"
