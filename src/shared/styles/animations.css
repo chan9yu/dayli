@@ -1,0 +1,79 @@
+@keyframes fade-in {
+	from {
+		opacity: 0;
+	}
+}
+
+@keyframes fade-out {
+	to {
+		opacity: 0;
+	}
+}
+
+@keyframes slide-in-from-left {
+	from {
+		transform: translateX(-100%);
+	}
+}
+
+@keyframes slide-out-to-left {
+	to {
+		transform: translateX(-100%);
+	}
+}
+
+@keyframes slide-in-from-right {
+	from {
+		transform: translateX(100%);
+	}
+}
+
+@keyframes slide-out-to-right {
+	to {
+		transform: translateX(100%);
+	}
+}
+
+@keyframes zoom-in {
+	from {
+		opacity: 0;
+		transform: scale(0.95);
+	}
+}
+
+@keyframes zoom-out {
+	to {
+		opacity: 0;
+		transform: scale(0.95);
+	}
+}
+
+@keyframes shimmer {
+	0% {
+		background-position: -200% 0;
+	}
+	100% {
+		background-position: 200% 0;
+	}
+}
+
+/* 네이티브 dialog 스타일 */
+dialog::backdrop {
+	background-color: oklch(0 0 0 / 0.8);
+}
+
+dialog[open] {
+	animation: zoom-in 200ms ease-out;
+}
+
+dialog[open]::backdrop {
+	animation: fade-in 200ms ease-out;
+}
+
+dialog.closing {
+	animation: zoom-out 150ms ease-in;
+}
+
+dialog.closing::backdrop {
+	animation: fade-out 150ms ease-in;
+}

@@ -1,0 +1,26 @@
+html {
+	color-scheme: light;
+}
+
+html.dark {
+	color-scheme: dark;
+}
+
+body {
+	background-color: var(--background);
+	color: var(--foreground);
+}
+
+/* 테마 전환 애니메이션 (View Transitions API) */
+::view-transition-old(root),
+::view-transition-new(root) {
+	animation-duration: 300ms;
+	animation-timing-function: ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	::view-transition-old(root),
+	::view-transition-new(root) {
+		animation-duration: 0ms;
+	}
+}
