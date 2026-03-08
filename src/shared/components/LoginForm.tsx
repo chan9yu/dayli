@@ -2,9 +2,10 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import type { ComponentProps } from "react";
+import type { ChangeEvent, ComponentProps, FormEvent } from "react";
 import { useState } from "react";
 
+import { OAuthSection } from "@/features/auth/components/OAuthSection";
 import { createClient } from "@/shared/lib/supabase/client";
 import { cn } from "@/shared/lib/utils";
 import { Button } from "@/shared/ui/Button";
@@ -21,29 +22,29 @@ export function LoginForm({ className, ...props }: LoginFormProps) {
 	const [isLoading, setIsLoading] = useState(false);
 	const router = useRouter();
 
-	const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+	const handleEmailChange = (e: ChangeEvent<HTMLInputElement>) => {
 		setEmail(e.target.value);
 	};
 
-	const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+	const handlePasswordChange = (e: ChangeEvent<HTMLInputElement>) => {
 		setPassword(e.target.value);
 	};
 
-	const handleLogin = async (e: React.FormEvent) => {
+	const handleLogin = async (e: FormEvent) => {
 		e.preventDefault();
 		const supabase = createClient();
 		setIsLoading(true);
 		setError(null);
 
-		try {
-			const { error } = await supabase.auth.signInWithPassword({ email, password });
-			if (error) throw error;
-			router.push("/protected");
-		} catch (error: unknown) {
-			setError(error instanceof Error ? error.message : "An error occurred");
-		} finally {
+		const { error } = await supabase.auth.signInWithPassword({ email, password });
+
+		if (error) {
+			setError(error.message);
 			setIsLoading(false);
+			return;
 		}
+
+		router.push("/protected");
 	};
 
 	return (
@@ -79,8 +80,12 @@ export function LoginForm({ className, ...props }: LoginFormProps) {
 								</div>
 								<Input id="password" type="password" required value={password} onChange={handlePasswordChange} />
 							</div>
-							{error && <p className="text-sm text-red-500">{error}</p>}
-							<Button type="submit" className="w-full" disabled={isLoading}>
+							{error && (
+								<p role="alert" className="text-sm text-red-500">
+									{error}
+								</p>
+							)}
+							<Button type="submit" className="w-full" disabled={isLoading} aria-busy={isLoading}>
 								{isLoading ? "Logging in..." : "Login"}
 							</Button>
 						</div>
@@ -91,6 +96,7 @@ export function LoginForm({ className, ...props }: LoginFormProps) {
 							</Link>
 						</div>
 					</form>
+					<OAuthSection onError={setError} />
 				</Card.Content>
 			</Card>
 		</div>

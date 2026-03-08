@@ -2,9 +2,10 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import type { ComponentProps } from "react";
+import type { ChangeEvent, ComponentProps, FormEvent } from "react";
 import { useState } from "react";
 
+import { OAuthSection } from "@/features/auth/components/OAuthSection";
 import { createClient } from "@/shared/lib/supabase/client";
 import { cn } from "@/shared/lib/utils";
 import { Button } from "@/shared/ui/Button";
@@ -22,43 +23,43 @@ export function SignUpForm({ className, ...props }: SignUpFormProps) {
 	const [isLoading, setIsLoading] = useState(false);
 	const router = useRouter();
 
-	const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+	const handleEmailChange = (e: ChangeEvent<HTMLInputElement>) => {
 		setEmail(e.target.value);
 	};
 
-	const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+	const handlePasswordChange = (e: ChangeEvent<HTMLInputElement>) => {
 		setPassword(e.target.value);
 	};
 
-	const handleRepeatPasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+	const handleRepeatPasswordChange = (e: ChangeEvent<HTMLInputElement>) => {
 		setRepeatPassword(e.target.value);
 	};
 
-	const handleSignUp = async (e: React.FormEvent) => {
+	const handleSignUp = async (e: FormEvent) => {
 		e.preventDefault();
+
+		if (password !== repeatPassword) {
+			setError("Passwords do not match");
+			return;
+		}
+
 		const supabase = createClient();
 		setIsLoading(true);
 		setError(null);
 
-		if (password !== repeatPassword) {
-			setError("Passwords do not match");
+		const { error } = await supabase.auth.signUp({
+			email,
+			password,
+			options: { emailRedirectTo: `${window.location.origin}/protected` }
+		});
+
+		if (error) {
+			setError(error.message);
 			setIsLoading(false);
 			return;
 		}
 
-		try {
-			const { error } = await supabase.auth.signUp({
-				email,
-				password,
-				options: { emailRedirectTo: `${window.location.origin}/protected` }
-			});
-			if (error) throw error;
-			router.push("/auth/sign-up-success");
-		} catch (error: unknown) {
-			setError(error instanceof Error ? error.message : "An error occurred");
-		} finally {
-			setIsLoading(false);
-		}
+		router.push("/auth/sign-up-success");
 	};
 
 	return (
@@ -96,8 +97,12 @@ export function SignUpForm({ className, ...props }: SignUpFormProps) {
 									onChange={handleRepeatPasswordChange}
 								/>
 							</div>
-							{error && <p className="text-sm text-red-500">{error}</p>}
-							<Button type="submit" className="w-full" disabled={isLoading}>
+							{error && (
+								<p role="alert" className="text-sm text-red-500">
+									{error}
+								</p>
+							)}
+							<Button type="submit" className="w-full" disabled={isLoading} aria-busy={isLoading}>
 								{isLoading ? "Creating an account..." : "Sign up"}
 							</Button>
 						</div>
@@ -108,6 +113,7 @@ export function SignUpForm({ className, ...props }: SignUpFormProps) {
 							</Link>
 						</div>
 					</form>
+					<OAuthSection onError={setError} />
 				</Card.Content>
 			</Card>
 		</div>
