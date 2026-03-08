@@ -1,11 +1,16 @@
 import type { ComponentProps } from "react";
 
-import { cn } from "@/shared/lib/utils";
+import { cn } from "@/shared/utils/cn";
 
 type CardRootProps = ComponentProps<"div">;
 
 function CardRoot({ className, ...props }: CardRootProps) {
-	return <div className={cn("bg-card text-card-foreground rounded-xl border shadow", className)} {...props} />;
+	return (
+		<div
+			className={cn("bg-card text-card-foreground shadow-warm rounded-2xl transition-shadow", className)}
+			{...props}
+		/>
+	);
 }
 
 type CardHeaderProps = ComponentProps<"div">;

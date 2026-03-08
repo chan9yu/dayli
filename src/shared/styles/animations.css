@@ -1,3 +1,5 @@
+/* ===== 기본 트랜지션 ===== */
+
 @keyframes fade-in {
 	from {
 		opacity: 0;
@@ -7,6 +9,22 @@
 @keyframes fade-out {
 	to {
 		opacity: 0;
+	}
+}
+
+/* ===== 슬라이드 ===== */
+
+@keyframes slide-up-fade {
+	from {
+		opacity: 0;
+		transform: translateY(12px);
+	}
+}
+
+@keyframes slide-down-fade {
+	from {
+		opacity: 0;
+		transform: translateY(-12px);
 	}
 }
 
@@ -34,6 +52,8 @@
 	}
 }
 
+/* ===== 스케일 ===== */
+
 @keyframes zoom-in {
 	from {
 		opacity: 0;
@@ -48,6 +68,29 @@
 	}
 }
 
+@keyframes scale-in {
+	from {
+		opacity: 0;
+		transform: scale(0.9);
+	}
+	to {
+		opacity: 1;
+		transform: scale(1);
+	}
+}
+
+@keyframes bounce-subtle {
+	0%,
+	100% {
+		transform: translateY(0);
+	}
+	50% {
+		transform: translateY(-4px);
+	}
+}
+
+/* ===== 로딩 / 피드백 ===== */
+
 @keyframes shimmer {
 	0% {
 		background-position: -200% 0;
@@ -57,13 +100,87 @@
 	}
 }
 
-/* 네이티브 dialog 스타일 */
+@keyframes pulse-soft {
+	0%,
+	100% {
+		opacity: 1;
+	}
+	50% {
+		opacity: 0.6;
+	}
+}
+
+@keyframes spin-slow {
+	from {
+		transform: rotate(0deg);
+	}
+	to {
+		transform: rotate(360deg);
+	}
+}
+
+/* ===== 프로그레스 ===== */
+
+@keyframes progress-fill {
+	from {
+		transform: scaleX(0);
+		transform-origin: left;
+	}
+	to {
+		transform: scaleX(1);
+		transform-origin: left;
+	}
+}
+
+@keyframes progress-indeterminate {
+	0% {
+		transform: translateX(-100%);
+	}
+	100% {
+		transform: translateX(400%);
+	}
+}
+
+/* ===== 스태거드 카드 노출 유틸리티 ===== */
+
+.animate-stagger > * {
+	animation: slide-up-fade 0.5s ease-out both;
+}
+
+.animate-stagger > *:nth-child(1) {
+	animation-delay: 0ms;
+}
+.animate-stagger > *:nth-child(2) {
+	animation-delay: 60ms;
+}
+.animate-stagger > *:nth-child(3) {
+	animation-delay: 120ms;
+}
+.animate-stagger > *:nth-child(4) {
+	animation-delay: 180ms;
+}
+.animate-stagger > *:nth-child(5) {
+	animation-delay: 240ms;
+}
+.animate-stagger > *:nth-child(6) {
+	animation-delay: 300ms;
+}
+.animate-stagger > *:nth-child(7) {
+	animation-delay: 360ms;
+}
+.animate-stagger > *:nth-child(8) {
+	animation-delay: 420ms;
+}
+
+/* ===== 네이티브 Dialog ===== */
+
 dialog::backdrop {
-	background-color: oklch(0 0 0 / 0.8);
+	background-color: oklch(0 0 0 / 0.6);
+	backdrop-filter: blur(4px);
 }
 
 dialog[open] {
-	animation: zoom-in 200ms ease-out;
+	animation: scale-in 250ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 dialog[open]::backdrop {
