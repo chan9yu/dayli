@@ -1,21 +1,44 @@
 import { createServerClient } from "@supabase/ssr";
 import { type NextRequest, NextResponse } from "next/server";
 
-import { hasEnvVars } from "../utils";
+const hasEnvVars = process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
+
+const ADMIN_PUBLIC_PATHS = ["/admin/login", "/admin/auth"];
+
+// 인증 불필요한 서비스 라우트 (startsWith 매칭)
+const SERVICE_PUBLIC_PREFIXES = ["/auth"];
+
+// /challenges 경로 중 인증이 필요한 패턴
+const CHALLENGES_AUTH_REQUIRED_PATTERNS = [
+	/^\/challenges\/new$/,
+	/^\/challenges\/[^/]+\/edit$/,
+	/^\/challenges\/[^/]+\/checkin$/
+];
+
+function isPublicServiceRoute(pathname: string) {
+	if (SERVICE_PUBLIC_PREFIXES.some((prefix) => pathname.startsWith(prefix))) {
+		return true;
+	}
+
+	// /challenges 목록과 /challenges/[id] 상세는 공개
+	// /challenges/new, /challenges/[id]/edit, /challenges/[id]/checkin은 보호
+	if (pathname.startsWith("/challenges")) {
+		const requiresAuth = CHALLENGES_AUTH_REQUIRED_PATTERNS.some((pattern) => pattern.test(pathname));
+		return !requiresAuth;
+	}
+
+	return false;
+}
 
 export async function updateSession(request: NextRequest) {
 	let supabaseResponse = NextResponse.next({
 		request
 	});
 
-	// If the env vars are not set, skip proxy check. You can remove this
-	// once you setup the project.
 	if (!hasEnvVars) {
 		return supabaseResponse;
 	}
 
-	// With Fluid compute, don't put this client in a global environment
-	// variable. Always create a new one on each request.
 	const supabase = createServerClient(
 		process.env.NEXT_PUBLIC_SUPABASE_URL!,
 		process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
@@ -35,39 +58,40 @@ export async function updateSession(request: NextRequest) {
 		}
 	);
 
-	// Do not run code between createServerClient and
-	// supabase.auth.getClaims(). A simple mistake could make it very hard to debug
-	// issues with users being randomly logged out.
-
-	// IMPORTANT: If you remove getClaims() and you use server-side rendering
-	// with the Supabase client, your users may be randomly logged out.
 	const { data } = await supabase.auth.getClaims();
 	const user = data?.claims;
 
-	if (
-		request.nextUrl.pathname !== "/" &&
-		!user &&
-		!request.nextUrl.pathname.startsWith("/login") &&
-		!request.nextUrl.pathname.startsWith("/auth")
-	) {
-		// no user, potentially respond by redirecting the user to the login page
-		const url = request.nextUrl.clone();
-		url.pathname = "/auth/login";
-		return NextResponse.redirect(url);
-	}
+	const { pathname } = request.nextUrl;
+	const isAdminRoute = pathname.startsWith("/admin");
 
-	// IMPORTANT: You *must* return the supabaseResponse object as it is.
-	// If you're creating a new response object with NextResponse.next() make sure to:
-	// 1. Pass the request in it, like so:
-	//    const myNewResponse = NextResponse.next({ request })
-	// 2. Copy over the cookies, like so:
-	//    myNewResponse.cookies.setAll(supabaseResponse.cookies.getAll())
-	// 3. Change the myNewResponse object to fit your needs, but avoid changing
-	//    the cookies!
-	// 4. Finally:
-	//    return myNewResponse
-	// If this is not done, you may be causing the browser and server to go out
-	// of sync and terminate the user's session prematurely!
+	if (isAdminRoute) {
+		const isAdminPublicRoute = ADMIN_PUBLIC_PATHS.some((path) => pathname.startsWith(path));
+
+		if (isAdminPublicRoute) {
+			return supabaseResponse;
+		}
+
+		if (!user) {
+			const url = request.nextUrl.clone();
+			url.pathname = "/admin/login";
+			return NextResponse.redirect(url);
+		}
+
+		const { data: userData } = await supabase.from("users").select("role").eq("id", user.sub).single();
+
+		if (userData?.role !== "admin") {
+			const url = request.nextUrl.clone();
+			url.pathname = "/admin/login";
+			url.searchParams.set("error", "not_admin");
+			return NextResponse.redirect(url);
+		}
+	} else {
+		if (!isPublicServiceRoute(pathname) && !user) {
+			const url = request.nextUrl.clone();
+			url.pathname = "/auth/login";
+			return NextResponse.redirect(url);
+		}
+	}
 
 	return supabaseResponse;
 }

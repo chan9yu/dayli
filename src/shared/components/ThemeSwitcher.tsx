@@ -1,54 +1,36 @@
 "use client";
 
-import { Laptop, Moon, Sun } from "lucide-react";
-import { useTheme } from "next-themes";
-import { useSyncExternalStore } from "react";
+import { Moon, Sun } from "lucide-react";
 
+import { useTheme } from "@/shared/hooks/useTheme";
 import { Button } from "@/shared/ui/Button";
-import { DropdownMenu } from "@/shared/ui/DropdownMenu";
-
-const ICON_SIZE = 16;
-
-const emptySubscribe = () => () => {};
 
 export function ThemeSwitcher() {
-	const mounted = useSyncExternalStore(
-		emptySubscribe,
-		() => true,
-		() => false
-	);
-	const { theme, setTheme } = useTheme();
+	const { resolvedTheme, setTheme, mounted } = useTheme();
+
+	const handleToggle = () => {
+		const nextTheme = resolvedTheme === "dark" ? "light" : "dark";
+		setTheme(nextTheme);
+	};
 
 	if (!mounted) {
-		return null;
+		return <div className="size-9" />;
 	}
 
 	return (
-		<DropdownMenu>
-			<DropdownMenu.Trigger asChild>
-				<Button variant="ghost" size="sm">
-					{theme === "light" ? (
-						<Sun key="light" size={ICON_SIZE} className="text-muted-foreground" />
-					) : theme === "dark" ? (
-						<Moon key="dark" size={ICON_SIZE} className="text-muted-foreground" />
-					) : (
-						<Laptop key="system" size={ICON_SIZE} className="text-muted-foreground" />
-					)}
-				</Button>
-			</DropdownMenu.Trigger>
-			<DropdownMenu.Content className="w-content" align="start">
-				<DropdownMenu.RadioGroup value={theme} onValueChange={setTheme}>
-					<DropdownMenu.RadioItem className="flex gap-2" value="light">
-						<Sun size={ICON_SIZE} className="text-muted-foreground" /> <span>Light</span>
-					</DropdownMenu.RadioItem>
-					<DropdownMenu.RadioItem className="flex gap-2" value="dark">
-						<Moon size={ICON_SIZE} className="text-muted-foreground" /> <span>Dark</span>
-					</DropdownMenu.RadioItem>
-					<DropdownMenu.RadioItem className="flex gap-2" value="system">
-						<Laptop size={ICON_SIZE} className="text-muted-foreground" /> <span>System</span>
-					</DropdownMenu.RadioItem>
-				</DropdownMenu.RadioGroup>
-			</DropdownMenu.Content>
-		</DropdownMenu>
+		<Button
+			variant="ghost"
+			size="icon"
+			className="size-9 rounded-xl"
+			onClick={handleToggle}
+			aria-label={resolvedTheme === "dark" ? "라이트 모드로 전환" : "다크 모드로 전환"}
+			aria-pressed={resolvedTheme === "dark"}
+		>
+			{resolvedTheme === "dark" ? (
+				<Moon className="text-muted-foreground size-[18px]" aria-hidden="true" />
+			) : (
+				<Sun className="text-muted-foreground size-[18px]" aria-hidden="true" />
+			)}
+		</Button>
 	);
 }
