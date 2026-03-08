@@ -22,7 +22,7 @@
 			"command": "node",
 			"args": ["/Users/chan9yu/Base/@local-mcp/mcp-shrimp-task-manager/dist/index.js"],
 			"env": {
-				"DATA_DIR": "/Users/chan9yu/Base/inflearn/nextjs-supabase-app/.shrimp_data",
+				"DATA_DIR": "/Users/chan9yu/Base/inflearn/dayli/.shrimp_data",
 				"TEMPLATES_USE": "ko",
 				"ENABLE_GUI": "true"
 			}

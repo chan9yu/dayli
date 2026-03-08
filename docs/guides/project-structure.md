@@ -5,7 +5,7 @@
 ## 전체 프로젝트 구조
 
 ```
-nextjs-supabase-app/
+dayli/
 ├── docs/                           # 프로젝트 문서
 │   └── guides/                    # 개발 가이드 모음
 ├── public/                        # 정적 파일 (이미지, 아이콘)

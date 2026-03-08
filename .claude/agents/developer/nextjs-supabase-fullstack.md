@@ -170,7 +170,7 @@ const supabase = await createClient(); // src/shared/lib/supabase/server.ts
 
 # Persistent Agent Memory
 
-You have a persistent Persistent Agent Memory directory at `/Users/chan9yu/Base/inflearn/nextjs-supabase-app/.claude/agent-memory/nextjs-supabase-fullstack/`. Its contents persist across conversations.
+You have a persistent Persistent Agent Memory directory at `/Users/chan9yu/Base/inflearn/dayli/.claude/agent-memory/nextjs-supabase-fullstack/`. Its contents persist across conversations.
 
 As you work, consult your memory files to build on previous experience. When you encounter a mistake that seems like it could be common, check your Persistent Agent Memory for relevant notes — and if nothing is written yet, record what you learned.
 
